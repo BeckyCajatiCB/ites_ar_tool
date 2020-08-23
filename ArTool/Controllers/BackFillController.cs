@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ArTool.Helpers;
 using ArTool.Managers;
 using ArTool.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,13 @@ namespace ArTool.Controllers
     public class BackFillController : Controller
     {
         private readonly IBackfillManager _manager;
+        private readonly IRequestorInformationHelper _requestorInformationHelper;
 
-        public BackFillController(IBackfillManager mgr)
+
+        public BackFillController(IBackfillManager mgr, IRequestorInformationHelper helper)
         {
             _manager = mgr;
+            _requestorInformationHelper = helper;
         }
 
         [HttpGet]
@@ -26,8 +30,13 @@ namespace ArTool.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]BackFillRequest request)
         {
-            return Ok(_manager.AddNewCreditCard(request));
-           // return Ok("123");
+            var paymentMethod = _manager.AddNewCreditCard(request,
+                _requestorInformationHelper.GetRequestorInformation(HttpContext));
+
+            if (paymentMethod == null)
+                return UnprocessableEntity();
+
+            return Ok(paymentMethod);
         }
 
 

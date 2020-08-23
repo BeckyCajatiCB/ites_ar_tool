@@ -3,21 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ArTool.Models;
+using ArTool.Models.Dtos;
+using NLog;
 
 namespace ArTool.ApiClients
 {
-    public class TellerApiCLient
+    public class TellerApiClient : ApiClient, ITellerApiClient
     {
-        //public Task<List<TransactionLog>> GetTransactionLogByToken(string token, RequestorInformation requestorInfo)
-        //{
-        //    var path = $"/v1/transactions/logs?tokenid={token}";
-        //    return GetJsonListAsync<TransactionLog>(path, requestorInfo);
-        //}
+        public TellerApiClient(ApiClientOptions apiOptions, ILogger logger = null) : base(apiOptions, logger)
+        {
+        }
 
-        //public Task<Transaction> PostSale(TokenSaleRequestDto saleRequestDto, RequestorInformation requestorInfo)
-        //{
-        //    var path = "/v1/transactions/sale";
-        //    return PostJsonAsync<Transaction>(path, saleRequestDto, requestorInfo);
-        //}
+        public Task<PostPaymentInfoResponse> PostPaymentInfo(ElectronicPaymentInfo paymentDetails, RequestorInformation requestorInfo)
+        {
+            var path = "/v1/paymentdetails/creditcard";
+            return PostJsonAsync<PostPaymentInfoResponse>(path, paymentDetails, requestorInfo);
+        }
+
+        public Task<PaymentMethod> PostPaymentMethod(PaymentMethod paymentMethod, RelatesTo relatesTo,RequestorInformation requestorInfo)
+        {
+            var path = $"/v1/{relatesTo.Type}s/{relatesTo.Did}/paymentmethods";
+            return PostJsonAsync<PaymentMethod>(path, paymentMethod, requestorInfo);
+        }
     }
 }
